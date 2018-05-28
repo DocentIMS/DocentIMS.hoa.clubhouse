@@ -18,4 +18,11 @@
       directory="static"
       />
 
+    <browser:page
+      name="view"
+      for="docent.hoa.clubhouse.content.clubhouse_form.IClubHouseForm"
+      class="docent.hoa.clubhouse.browser.rental_form.RentClubHousesForm"
+      permission="zope2.View"
+      />
+
 </configure>

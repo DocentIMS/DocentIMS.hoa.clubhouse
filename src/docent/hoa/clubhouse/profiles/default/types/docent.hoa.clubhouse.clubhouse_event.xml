@@ -1,44 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <object
-    i18n:domain="docent.hoa.clubhouse"
+    i18n:domain="docent.hoa.spots"
     meta_type="Dexterity FTI"
-    name="Clubhouse"
+    name="docent.hoa.clubhouse.clubhouse_event"
     xmlns:i18n="http://xml.zope.org/namespaces/i18n">
 
   <!-- Basic properties -->
   <property
       i18n:translate=""
-      name="title">Clubhouse</property>
+      name="title">Clubhouse Event</property>
   <property
       i18n:translate=""
       name="description"></property>
 
   <property name="allow_discussion">False</property>
-  <property name="factory">Clubhouse</property>
-  <property name="icon_expr"></property>
+  <property name="icon_expr">string:\1F3E0</property>
   <property name="link_target"></property>
 
   <!-- Hierarchy control -->
   <property name="allowed_content_types">
-    <!-- <element value="" />-->
   </property>
   <property name="filter_content_types">True</property>
   <property name="global_allow">True</property>
 
   <!-- Schema, class and security -->
   <property name="add_permission">cmf.AddPortalContent</property>
-  <property name="klass">plone.dexterity.content.Item</property>
-  <property name="model_file"></property>
-  <property name="model_source"></property>
-  <property name="schema">docent.hoa.clubhouse.interfaces.IClubhouse</property>
+  <property name="klass">docent.hoa.clubhouse.content.clubhouse_event.ClubHouseEvent</property>
+  <property name="schema">docent.hoa.clubhouse.content.clubhouse_event.IClubHouseEvent</property>
 
   <!-- Enabled behaviors -->
   <property name="behaviors">
-    <element value="plone.app.content.interfaces.INameFromTitle" />
+    <!--<element value="plone.app.dexterity.behaviors.exclfromnav.IExcludeFromNavigation"/>-->
+    <element value="plone.app.event.dx.behaviors.IEventBasic"/>
+    <element value="plone.app.event.dx.behaviors.IEventRecurrence"/>
+    <element value="plone.app.event.dx.behaviors.IEventLocation"/>
+    <element value="plone.app.event.dx.behaviors.IEventAttendees"/>
+    <element value="plone.app.event.dx.behaviors.IEventContact"/>
+    <element value="plone.app.dexterity.behaviors.metadata.IDublinCore"/>
+    <element value="plone.app.content.interfaces.INameFromTitle"/>
+    <element value="plone.app.contenttypes.behaviors.richtext.IRichText"/>
+    <element value="plone.app.dexterity.behaviors.discussion.IAllowDiscussion"/>
+    <element value="plone.app.dexterity.behaviors.exclfromnav.IExcludeFromNavigation"/>
+    <element value="plone.app.dexterity.behaviors.id.IShortName"/>
+    <element value="plone.app.relationfield.behavior.IRelatedItems"/>
+    <element value="plone.app.versioningbehavior.behaviors.IVersionable" />
+    <element value="plone.app.lockingbehavior.behaviors.ILocking" />
   </property>
 
   <!-- View information -->
-  <property name="add_view_expr">string:${folder_url}/++add++Clubhouse</property>
+  <property name="add_view_expr">string:${folder_url}/++add++docent.hoa.clubhouse.clubhouse_event</property>
   <property name="immediate_view">view</property>
   <property name="default_view">view</property>
   <property name="default_view_fallback">False</property>
@@ -70,7 +80,7 @@
       category="object"
       condition_expr=""
       description=""
-      i18n:attributes="title; description"
+      i18n:attributes="title description"
       title="View"
       url_expr="string:${object_url}"
       visible="True">
@@ -81,7 +91,7 @@
       category="object"
       condition_expr=""
       description=""
-      i18n:attributes="title; description"
+      i18n:attributes="title description"
       title="Edit"
       url_expr="string:${object_url}/edit"
       visible="True">

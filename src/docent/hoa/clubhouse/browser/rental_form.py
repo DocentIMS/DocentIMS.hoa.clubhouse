@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime
+from datetime import datetime, timedelta
+import pytz
 from plone import api
-from plone.directives import form
 from z3c.form import button, field
 from zope.interface import Invalid
-
+from plone.dexterity.utils import createContent
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.SecurityManagement import newSecurityManager, setSecurityManager
 from AccessControl.User import UnrestrictedUser as BaseUnrestrictedUser
@@ -14,6 +14,8 @@ from plone.directives import form
 from plone.namedfile.field import NamedBlobFile
 from zope import schema
 from z3c.form import interfaces
+from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
+
 from docent.hoa.clubhouse.utils import getFullname, getHOAAccount, getAddress, getDivision, getLot, getEmail
 
 import logging
@@ -22,27 +24,32 @@ logger = logging.getLogger("Plone")
 from docent.hoa.clubhouse import _
 
 
+def validateAccept(value):
+    if not value == True:
+        raise Invalid(u"You must accept the Rental Agreement before you can reserve the Clubhouse.")
+    return True
+
+
 def validateDate(value):
     if value:
         date_string = value.strftime('%m-%d-%Y')
 
         portal = api.portal.get()
-        events = api.portal.find(context=portal,
+        events = api.content.find(context=portal,
                                  portal_type='Event',
                                  )
-
         for event_brain in events:
             start_date = event_brain.start
-            start_date_string = datetime.fromtimestamp(start_date).strfttime('%m-%d-%Y')
+            start_date_string = start_date.strftime('%m-%d-%Y')
             if date_string == start_date_string:
                 raise Invalid(u"That date is unavailable.")
 
 
-        clubhouse_events = api.portal.find(context=portal,
+        clubhouse_events = api.content.find(context=portal,
                                            portal_type='docent.hoa.clubhouse.clubhouse_event')
         for clubhouse_event_brain in clubhouse_events:
             start_date = clubhouse_event_brain.start
-            start_date_string = datetime.fromtimestamp(start_date).strfttime('%m-%d-%Y')
+            start_date_string = start_date.strftime('%m-%d-%Y')
             if date_string == start_date_string:
                 raise Invalid(u"That date is unavailable.")
 
@@ -55,37 +62,37 @@ class IRentClubhousesForm(form.Schema):
     """
     form.mode(fullname='display')
     fullname = schema.ASCIILine(title=_(u"Name"),
-                               description=_(u""),
-                               required=False,)
+                                description=_(u""),
+                                required=False,)
 
     form.mode(account='display')
-    account = schema.ASCIILine(title=_(u"HOA Account"),
+    account = schema.ASCIILine(title=_(u"Management Trust Account"),
                                description=_(u""),
                                required=False,)
 
     form.mode(address='display')
     address = schema.TextLine(title=_(u"Address"),
-                               description=_(u""),
-                               required=False,)
+                              description=_(u""),
+                              required=False,)
 
     form.mode(division='display')
     division = schema.ASCIILine(title=_(u"Division"),
-                               description=_(u""),
-                               required=False,)
+                                description=_(u""),
+                                required=False,)
 
     form.mode(lot='display')
     lot = schema.ASCIILine(title=_(u"Lot"),
-                               description=_(u""),
-                               required=False,)
+                           description=_(u""),
+                           required=False,)
 
     phone = schema.ASCIILine(title=_(u"Phone"),
-                               description=_(u"311-555-2106"),
-                               required=False,)
+                             description=_(u"311-555-2106"),
+                             required=False,)
 
     form.mode(email='display')
     email = schema.ASCIILine(title=_(u"Email"),
-                               description=_(u""),
-                               required=False,)
+                             description=_(u""),
+                             required=False,)
 
     form.mode(member_type='display')
     member_type = schema.ASCIILine(title=_(u"I am a Meadows"))
@@ -96,9 +103,9 @@ class IRentClubhousesForm(form.Schema):
                        constraint=validateDate,)
 
     accept_rental_agreement = schema.Bool(title=_(u"Rental Agreement"),
-                               description=_(u"I have read and accept the rental agreement."),
-                               required=False,
-                               default=False)
+                                          description=_(u"I have read and accept the rental agreement."),
+                                          required=True,
+                                          constraint=validateAccept)
 
     initials = schema.TextLine(title=_(u"Initials"),
                                description=_(u"Enter your initials."),
@@ -112,6 +119,21 @@ class RentClubHousesForm(form.SchemaForm):
     label = _(u"Online Club House Rental Request")
     schema = IRentClubhousesForm
     ignoreContext = True
+
+    template = ViewPageTemplateFile("templates/rental_form.pt")
+
+    def update(self):
+        super(RentClubHousesForm, self).update()
+        request = self.request
+        form = request.form
+        self.thanks = False
+        form_action = form.get('form_action') or ''
+        if form_action == 'thanks':
+            self.thanks = True
+
+        self.rental_date = form.get('rental_date') or ''
+
+        self.updateWidgets()
 
     def updateFields(self):
         super(RentClubHousesForm, self).updateFields()
@@ -128,6 +150,12 @@ class RentClubHousesForm(form.SchemaForm):
             member_type = "Resident"
         if owner_group:
             member_type = "Owner"
+
+        self.member_fullname = member_fullname
+        self.management_trust_account = management_trust_account
+        self.member_email = member_email
+        self.member_id = member_id
+        self.member_type = member_type
 
         sm = getSecurityManager()
         role = 'Manager'
@@ -147,7 +175,8 @@ class RentClubHousesForm(form.SchemaForm):
 
             if member_homes:
                 if len(member_homes) > 1:
-                    api.portal.show_message(message="%s, We show multiple homes for you. Please contact Meadows Management.",
+                    api.portal.show_message(message="%s, We show multiple homes for you. Please contact Meadows "
+                                                    "Management." % member_fullname,
                                             request=self.request,
                                             type='warn')
                 member_home = member_homes[0]
@@ -155,6 +184,7 @@ class RentClubHousesForm(form.SchemaForm):
                 street_address = member_home.street_address
                 member_home_id = member_home.id
                 division, lot = member_home_id.split('_')
+
                 self.fields['fullname'].field.default = member_fullname
                 self.fields['account'].field.default = management_trust_account
                 self.fields['address'].field.default = u'%s %s' % (street_number, street_address)
@@ -177,6 +207,12 @@ class RentClubHousesForm(form.SchemaForm):
             setSecurityManager(sm)
             logger.warn("CLUBHOUSE RENTAL FORM ERROR: %s" % e)
 
+        self.street_number = street_number
+        self.street_address = street_address
+        self.address = u'%s %s' % (street_number, street_address)
+        self.division = division
+        self.lot = lot
+        self.div_lot = u"%s_%s" % (division, lot)
 
 
     def updateWidgets(self):
@@ -200,9 +236,10 @@ class RentClubHousesForm(form.SchemaForm):
         :param actions:
         :return:
         """
+        context = self.context
+        data, errors = self.extractData()
         current_member = api.user.get_current()
         current_member_id = current_member.getId()
-        current_member_fullname = current_member.getProperty('fullname')
         portal = api.portal.get()
         events_obj = portal.get('events')
         date = data.get('date') or None
@@ -211,7 +248,24 @@ class RentClubHousesForm(form.SchemaForm):
                                     request=self.request,
                                     type='warn')
             return
-        date_string = date.stftime('%m-%d-%Y')
+        date_string = date.strftime('%m-%d-%Y')
+        logger.info("Datestring is %s" % date_string)
+
+        date_dt = datetime.combine(date, datetime.min.time())
+        tz = pytz.timezone('America/Los_Angeles')
+        date_tz_dt = tz.localize(date_dt)
+
+        fullname = data.get('fullname') or getattr(self, 'member_fullname', 'Unknown Member')
+        hoa_account = data.get('account') or getattr(self, 'management_trust_account', 'Unknown Management Trust Account')
+        address = data.get('address') or getattr(self, 'address', 'Unknown Address')
+        lot = data.get('lot') or getattr(self, 'lot', 'Unknown Lot')
+        division = data.get('division') or getattr(self, 'division', 'Unknown Division')
+        phone = data.get('phone') or 'Unknown Phone'
+        email = data.get('email') or getattr(self, 'member_email', '')
+        member_type = data.get('member_type') or getattr(self, 'member_type', 'Unknown Member Type')
+        accept_rental_agreement = data.get('accept_rental_agreement')
+        initials = data.get('initials') or 'Unknown Initials'
+
         sm = getSecurityManager()
         role = 'Manager'
         tmp_user = BaseUnrestrictedUser(sm.getUser().getId(), '', [role], '')
@@ -223,22 +277,63 @@ class RentClubHousesForm(form.SchemaForm):
             new_event_obj = createContent('docent.hoa.clubhouse.clubhouse_event',
                                           id=event_id,
                                           title='Clubhouse Reservation')
-            portal._setObject(event_id, new_event_obj)
-            start_date = datetime.strptime('%sT10:00:00' % date_string,
-                                  '%m-%d-%YT%H:%M:%S')
+            events_obj._setObject(event_id, new_event_obj)
+            start_date = date_tz_dt + timedelta(hours=9)
 
-            end_date = datetime.strptime(('%sT22:00:00' % date_string,
-                                  '%m-%d-%YT%H:%M:%S'))
+            end_date = date_tz_dt + timedelta(hours=22)
+
             setattr(new_event_obj, 'start', start_date)
             setattr(new_event_obj, 'end', end_date)
             setattr(new_event_obj, 'renter_id', current_member_id)
             setattr(new_event_obj, 'location', 'Clubhouse')
-            setattr(new_event_obj, 'attendees', current_member_fullname)
+            setattr(new_event_obj, 'contact_name', fullname)
+            setattr(new_event_obj, 'contact_email', email)
+            setattr(new_event_obj, 'contact_phone', phone)
             new_event_obj.reindexObject()
+            setSecurityManager(sm)
         except Exception as e:
             setSecurityManager(sm)
             logger.warn("CLUBHOUSE RENTAL FORM ERROR: COULD NOT SAVE EVENT: %s" % e)
 
         #send emails
+        email_contacts = getattr(context, 'email_contacts', []) or []
 
-        return
+        subject = "Clubhouse Rental Request %s" % date_string
+        msg = "Fullname: %s\n" % fullname
+        msg += "HOA Account: %s\n" % hoa_account
+        msg += "Address: %s\n" % address
+        msg += "Div/Lot: %s_%s\n" % (division, lot)
+        msg += "Phone: %s\n" % phone
+        msg += "Email: %s\n" % email or "Unknown Email"
+        msg += "Member Type: %s\n" % member_type
+        msg += "Rental Data: %s\n" % date_string
+        msg += "Accept Rental Agreement: %s\n" % accept_rental_agreement
+        msg += "Initials: %s\n" % initials
+
+        if email:
+            email_contacts.append(email)
+
+        for ec in email_contacts:
+            try:
+                api.portal.send_email(recipient=ec,
+                                      subject=subject,
+                                      body=msg,
+                                      immediate=True)
+
+                api.portal.show_message(message="Club House Reservation Sent",
+                                        request=self.request,
+                                        type='info')
+
+            except Exception as e:
+                logger.warn("Could Not Send Clubhouse Registration Emails.")
+                api.portal.show_message(message="An error occured, could not send reservation emails. Please confirm your"
+                                                "reservation with the property manager.",
+                                        request=self.request,
+                                        type='warn')
+
+        return self.request.response.redirect('%s?form_action=thanks&rental_date=%s' % (context.absolute_url(),
+                                                                                        date_string))
+
+
+
+

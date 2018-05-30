@@ -32,4 +32,10 @@
       factory=".setuphandlers.HiddenProfiles"
       name="docent.hoa.clubhouse-hiddenprofiles" />
 
+  <subscriber
+    for="docent.hoa.clubhouse.content.clubhouse_event.IClubHouseEvent
+         zope.lifecycleevent.interfaces.IObjectAddedEvent"
+      handler=".eventhandlers.after_creation_handler"
+      />
+
 </configure>

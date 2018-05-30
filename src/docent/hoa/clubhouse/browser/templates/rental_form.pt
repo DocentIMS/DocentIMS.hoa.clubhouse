@@ -1,0 +1,36 @@
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:metal="http://xml.zope.org/namespaces/metal"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      i18n:domain="example.dexterityforms"
+      metal:use-macro="context/main_template/macros/master">
+
+    <metal:block fill-slot="main">
+        <div tal:replace="structure provider:plone.abovecontenttitle" />
+        <h1 class="documentFirstHeading"><span tal:replace="context/Title" /></h1>
+        <div tal:replace="structure provider:plone.belowcontenttitle" />
+
+        <div tal:replace="structure provider:plone.abovecontentbody" />
+
+          <tal:block tal:define="thanks view/thanks">
+          <tal:cond tal:condition="not:thanks" >
+            <div tal:content="structure context/form_preface/output"></div>
+            <metal:block use-macro="context/@@ploneform-macros/titlelessform" />
+          </tal:cond>
+          <tal:cond tal:condition="thanks">
+            <div tal:content="structure context/form_thankyou/output">
+              <h2>Clubhouse Reservation Details</h2>
+              <ul>
+                <li>Renter: <span tal:replace="view/member_fullname" /></li>
+                <li>Meadows Address: <span tal:replace="view/address" /></li>
+                <li>Div/Lot: <span tal:replace="view/div_lot" /></li>
+                <li>Management Trust Account: <span tal:replace="view/management_trust_account" /></li>
+                <li>Rental Date: <span tal:replace="view/rental_date" /></li>
+              </ul>
+          </tal:cond>
+          </tal:block>
+        <div tal:replace="structure provider:plone.belowcontentbody" />
+
+    </metal:block>
+
+</html>

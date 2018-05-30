@@ -25,4 +25,20 @@
       permission="zope2.View"
       />
 
+      <browser:page
+      name="view"
+      for="docent.hoa.clubhouse.content.clubhouse_event.IClubHouseEvent"
+      class="docent.hoa.clubhouse.browser.clubhouse_event_view.ClubHouseEventView"
+      permission="zope2.View"
+      />
+
+    <browser:page
+        for="*"
+        name="hoa_event_listing"
+        class="docent.hoa.clubhouse.browser.hoa_event_listing.HOAEventListing"
+        template="templates/hoa_event_listing.pt"
+        permission="zope2.View"
+        layer="docent.hoa.clubhouse.interfaces.IDocentHoaClubhouseLayer"
+        />
+
 </configure>

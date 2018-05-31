@@ -163,6 +163,12 @@ class RentClubHousesForm(form.SchemaForm):
         portal = api.portal.get()
         tmp_user = tmp_user.__of__(portal.acl_users)
         newSecurityManager(None, tmp_user)
+
+        street_number = ''
+        street_address = ''
+        division = ''
+        lot = ''
+
         try:
             catalog = api.portal.get_tool('portal_catalog')
             query_owner_one = {"portal_type": "hoa_house",}

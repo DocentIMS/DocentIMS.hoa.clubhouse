@@ -99,7 +99,7 @@ class IRentClubhousesForm(form.Schema):
 
     date = schema.Date(title=_(u"Reservation Date"),
                        description=_(u"All reservations are from 9AM-10PM"),
-                       required=False,
+                       required=True,
                        constraint=validateDate,)
 
     accept_rental_agreement = schema.Bool(title=_(u"Rental Agreement"),
@@ -116,7 +116,7 @@ class IRentClubhousesForm(form.Schema):
 
 class RentClubHousesForm(form.SchemaForm):
 
-    label = _(u"Online Club House Rental Request")
+    label = _(u"Club House Reservation Form")
     schema = IRentClubhousesForm
     ignoreContext = True
 
@@ -229,7 +229,7 @@ class RentClubHousesForm(form.SchemaForm):
 
     @button.buttonAndHandler(u"Cancel")
     def handleCancel(self, actions):
-        api.portal.show_message(message="Online Club House Rental Request Cancelled.",
+        api.portal.show_message(message="Club House Rental Request Cancelled.",
                                 request=self.request,
                                 type='info')
         portal = api.portal.get()
@@ -282,7 +282,7 @@ class RentClubHousesForm(form.SchemaForm):
             event_id = 'club-house-event-%s' % date_string
             new_event_obj = createContent('docent.hoa.clubhouse.clubhouse_event',
                                           id=event_id,
-                                          title='Clubhouse Reservation')
+                                          title='Private Event')
             events_obj._setObject(event_id, new_event_obj)
             start_date = date_tz_dt + timedelta(hours=9)
 

@@ -39,7 +39,8 @@ def validateDate(value):
                                  portal_type='Event',
                                  )
         for event_brain in events:
-            start_date = event_brain.start
+            event_obj = event_brain.getObject()
+            start_date = event_obj.start
             start_date_string = start_date.strftime('%m-%d-%Y')
             if date_string == start_date_string:
                 raise Invalid(u"That date is unavailable.")
@@ -48,7 +49,8 @@ def validateDate(value):
         clubhouse_events = api.content.find(context=portal,
                                            portal_type='docent.hoa.clubhouse.clubhouse_event')
         for clubhouse_event_brain in clubhouse_events:
-            start_date = clubhouse_event_brain.start
+            che_obj = clubhouse_event_brain.getObject()
+            start_date = che_obj.start
             start_date_string = start_date.strftime('%m-%d-%Y')
             if date_string == start_date_string:
                 raise Invalid(u"That date is unavailable.")

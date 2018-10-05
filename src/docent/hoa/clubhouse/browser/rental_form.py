@@ -86,7 +86,7 @@ class IRentClubhousesForm(form.Schema):
                            required=False,)
 
     phone = schema.ASCIILine(title=_(u"Phone"),
-                             description=_(u"311-555-2106"),
+                             description=_(u"Enter your phone number."),
                              required=False,)
 
     form.mode(email='display')
@@ -98,7 +98,7 @@ class IRentClubhousesForm(form.Schema):
     member_type = schema.ASCIILine(title=_(u"I am a Meadows"))
 
     date = schema.Date(title=_(u"Reservation Date"),
-                       description=_(u"All reservations are from 9AM-10PM"),
+                       description=_(u"All reservations are from 10AM-10PM. Please ignore date error if you see your date below."),
                        required=True,
                        constraint=validateDate,)
 
@@ -284,7 +284,7 @@ class RentClubHousesForm(form.SchemaForm):
                                           id=event_id,
                                           title='Private Event')
             events_obj._setObject(event_id, new_event_obj)
-            start_date = date_tz_dt + timedelta(hours=9)
+            start_date = date_tz_dt + timedelta(hours=10)
 
             end_date = date_tz_dt + timedelta(hours=22)
 

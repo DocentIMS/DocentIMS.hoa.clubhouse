@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 import pytz
 from plone import api
 from z3c.form import button, field
@@ -16,12 +16,20 @@ from zope import schema
 from z3c.form import interfaces
 from Products.Five.browser.pagetemplatefile import ViewPageTemplateFile
 
+from z3c.form.interfaces import ActionExecutionError
+
 from docent.hoa.clubhouse.utils import getFullname, getHOAAccount, getAddress, getDivision, getLot, getEmail
+
+from plone.formwidget.datetime.z3cform.widget import DateWidget
 
 import logging
 logger = logging.getLogger("Plone")
 
 from docent.hoa.clubhouse import _
+
+
+def getTodaysDate():
+    return date.today()
 
 
 def validateAccept(value):
@@ -33,6 +41,13 @@ def validateAccept(value):
 def validateDate(value):
     if value:
         date_string = value.strftime('%m-%d-%Y')
+        today = getTodaysDate()
+        today_string = today.strftime('%m-%d-%Y')
+        if date_string == today_string:
+            return True
+
+        if value < today:
+            raise Invalid(u"Please select a date in the future.")
 
         portal = api.portal.get()
         events = api.content.find(context=portal,
@@ -99,9 +114,11 @@ class IRentClubhousesForm(form.Schema):
     form.mode(member_type='display')
     member_type = schema.ASCIILine(title=_(u"I am a Meadows"))
 
+    form.widget('date', DateWidget)
     date = schema.Date(title=_(u"Reservation Date"),
-                       description=_(u"All reservations are from 10AM-10PM. Please ignore date error if you see your date below."),
+                       description=_(u"All reservations are from 10AM-10PM. Reservations cannot be made on the same day of the event."),
                        required=True,
+                       defaultFactory=getTodaysDate,
                        constraint=validateDate,)
 
     accept_rental_agreement = schema.Bool(title=_(u"Rental Agreement"),
@@ -257,6 +274,10 @@ class RentClubHousesForm(form.SchemaForm):
                                     type='warn')
             return
         date_string = date.strftime('%m-%d-%Y')
+        today = getTodaysDate()
+        today_string = today.strftime('%m-%d-%Y')
+        if date_string == today_string:
+            raise ActionExecutionError(Invalid(_(u"You may not reserve the Clubhouse on the same day as the event.")))
         logger.info("Datestring is %s" % date_string)
 
         date_dt = datetime.combine(date, datetime.min.time())

@@ -329,7 +329,7 @@ class RentClubHousesForm(form.SchemaForm):
 
         subject = "The Meadows Clubhouse Rental Request %s" % date_string
         msg = "Ensure you've made your payment\n"
-        msg += "Send the signed agreement to porpertymanager@meadowsofredmond.org\n"
+        msg += "Send the signed agreement to propertymanager@meadowsofredmond.org\n"
         msg += "Agreement: http://themeadowsofredmond.org/amenities/clubhouse-rental-agreement.pdf\n"
         msg += "Payment page: https://www.paydici.com/tmt/pay\n"
         msg += "\n=========================\n\n"

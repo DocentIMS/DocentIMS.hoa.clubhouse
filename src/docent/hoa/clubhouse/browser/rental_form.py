@@ -327,8 +327,13 @@ class RentClubHousesForm(form.SchemaForm):
         #send emails
         email_contacts = getattr(context, 'email_contacts', []) or []
 
-        subject = "Clubhouse Rental Request %s" % date_string
-        msg = "Fullname: %s\n" % fullname
+        subject = "The Meadows Clubhouse Rental Request %s" % date_string
+        msg = "Ensure you've made your payment\n"
+        msg += "Send the signed agreement to porpertymanager@meadowsofredmond.org\n"
+        msg += "Agreement: http://themeadowsofredmond.org/amenities/clubhouse-rental-agreement.pdf\n"
+        msg += "Payment page: https://www.paydici.com/tmt/pay\n"
+        msg += "\n=========================\n\n"
+        msg += "Fullname: %s\n" % fullname
         msg += "HOA Account: %s\n" % hoa_account
         msg += "Address: %s\n" % address
         msg += "Div/Lot: %s_%s\n" % (division, lot)
@@ -349,7 +354,7 @@ class RentClubHousesForm(form.SchemaForm):
                                       body=msg,
                                       immediate=True)
 
-                api.portal.show_message(message="Club House Reservation Sent",
+                api.portal.show_message(message="Club House Reserved. Please complete the important steps below.",
                                         request=self.request,
                                         type='info')
 

@@ -41,4 +41,13 @@
         layer="docent.hoa.clubhouse.interfaces.IDocentHoaClubhouseLayer"
         />
 
+    <browser:page
+        for="*"
+        name="event_listing"
+        class="docent.hoa.clubhouse.browser.hoa_event_listing.HOAEventListing"
+        template="templates/hoa_event_listing.pt"
+        permission="zope2.View"
+        layer="plone.app.z3cform.interfaces.IPloneFormLayer"
+        />
+
 </configure>

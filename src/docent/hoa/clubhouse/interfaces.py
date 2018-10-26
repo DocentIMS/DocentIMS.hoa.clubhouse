@@ -2,8 +2,7 @@
 from zope.interface import Interface
 from zope.publisher.interfaces.browser import IDefaultBrowserLayer
 
-
-class IDocentHoaClubhouseLayer(IDefaultBrowserLayer):
+class IDocentHoaClubhouseLayer(Interface):
     """Marker interface that defines a browser layer."""
 
 

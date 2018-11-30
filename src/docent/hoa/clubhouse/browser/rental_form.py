@@ -343,11 +343,11 @@ class RentClubHousesForm(form.SchemaForm):
         msg += "Rental Data: %s\n" % date_string
         msg += "Accept Rental Agreement: %s\n" % accept_rental_agreement
         msg += "Initials: %s\n" % initials
-
+        send_to = email_contacts[:]
         if email:
-            email_contacts.append(email)
+            send_to.append(email)
 
-        for ec in email_contacts:
+        for ec in send_to:
             try:
                 api.portal.send_email(recipient=ec,
                                       subject=subject,

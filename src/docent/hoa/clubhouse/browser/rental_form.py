@@ -349,7 +349,7 @@ class RentClubHousesForm(form.SchemaForm):
         msg += "Initials: %s\n" % initials
         msg += "\nWe hope you have a great event.\n"
         msg += "\nThe Meadows Board\n"
-        msg ++ "board@themeadowsofredmond.org\n"
+        msg += "board@themeadowsofredmond.org\n"
         send_to = email_contacts[:]
         if email:
             send_to.append(email)

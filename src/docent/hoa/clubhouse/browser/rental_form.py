@@ -329,27 +329,27 @@ class RentClubHousesForm(form.SchemaForm):
 
         subject = "The Meadows Clubhouse Rental Request %s" % date_string
 
-        msg = "Hi %s,\n\n" % fullname
-        msg += "Your clubhouse rental is confirmed for %s.\n\n" % date_string
-        msg += "Your rental period is from 10 am to 10 pm for guests.  To get ready for your event, you may enter the clubhouse the day before your event and before 10 am day of the event.\n"
-        msg += "\n=========================\n\n"
-        msg += "TO ENSURE YOUR RESERVATION ISN’T CANCELED, PLEASE ENSURE YOU HAVE COMPLETED THE FOLLOWING.  (Note: These actions should have been completed during your reservation.  If you have completed them, no action is required.)\n\n"
-        msg += "    1) Ensure you've made your payment:  https://www.paydici.com/tmt/pay\n"
-        msg += "    2) Send the signed paper agreement (http://themeadowsofredmond.org/amenities/clubhouse-rental-agreement.pdf) to our property manager (propertymanager@themeadowsofredmond.org)\n\n"  
-        msg += "For your reference, these are details collected during your reservation\n\n"
-        msg += "Fullname: %s\n" % fullname
-        msg += "HOA Account: %s\n" % hoa_account
-        msg += "Address: %s\n" % address
-        msg += "Div/Lot: %s_%s\n" % (division, lot)
-        msg += "Phone: %s\n" % phone
-        msg += "Email: %s\n" % email or "Unknown Email"
-        msg += "Member Type: %s\n" % member_type
-        msg += "Rental Data: %s\n" % date_string
-        msg += "Accept Rental Agreement: %s\n" % accept_rental_agreement
-        msg += "Initials: %s\n" % initials
-        msg += "\nWe hope you have a great event.\n"
-        msg += "\nThe Meadows Board\n"
-        msg += "board@themeadowsofredmond.org\n"
+        msg = u"Hi %s,\n\n" % fullname
+        msg += u"Your clubhouse rental is confirmed for %s.\n\n" % date_string
+        msg += u"Your rental period is from 10 am to 10 pm for guests.  To get ready for your event, you may enter the clubhouse the day before your event and before 10 am day of the event.\n"
+        msg += u"\n=========================\n\n"
+        msg += u"TO ENSURE YOUR RESERVATION ISN’T CANCELED, PLEASE ENSURE YOU HAVE COMPLETED THE FOLLOWING.  (Note: These actions should have been completed during your reservation.  If you have completed them, no action is required.)\n\n"
+        msg += u"    1) Ensure you've made your payment:  https://www.paydici.com/tmt/pay\n"
+        msg += u"    2) Send the signed paper agreement (http://themeadowsofredmond.org/amenities/clubhouse-rental-agreement.pdf) to our property manager (propertymanager@themeadowsofredmond.org)\n\n"  
+        msg += u"For your reference, these are details collected during your reservation\n\n"
+        msg += u"Fullname: %s\n" % fullname
+        msg += u"HOA Account: %s\n" % hoa_account
+        msg += u"Address: %s\n" % address
+        msg += u"Div/Lot: %s_%s\n" % (division, lot)
+        msg += u"Phone: %s\n" % phone
+        msg += u"Email: %s\n" % email or "Unknown Email"
+        msg += u"Member Type: %s\n" % member_type
+        msg += u"Rental Data: %s\n" % date_string
+        msg += u"Accept Rental Agreement: %s\n" % accept_rental_agreement
+        msg += u"Initials: %s\n" % initials
+        msg += u"\nWe hope you have a great event.\n"
+        msg += u"\nThe Meadows Board\n"
+        msg += u"board@themeadowsofredmond.org\n"
         send_to = email_contacts[:]
         if email:
             send_to.append(email)

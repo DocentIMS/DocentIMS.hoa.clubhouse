@@ -329,7 +329,7 @@ class RentClubHousesForm(form.SchemaForm):
 
         subject = "The Meadows Clubhouse Rental Request %s" % date_string
 
-        msg += "Hi %s,\n\n" % fullname
+        msg = "Hi %s,\n\n" % fullname
         msg += "Your clubhouse rental is confirmed for %s.\n\n" % date_string
         msg += "Your rental period is from 10 am to 10 pm for guests.  To get ready for your event, you may enter the clubhouse the day before your event and before 10 am day of the event.\n"
         msg += "\n=========================\n\n"
